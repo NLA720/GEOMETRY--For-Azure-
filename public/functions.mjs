@@ -24,6 +24,11 @@ window.addEventListener("message", (event) => {
     console.log("Clearing functional locations data");
     window.serviceZone = [];  
     window.serviceZone.push(...event.data.payload);
+  } else if (event.data?.type === "spaceInventory") {
+    console.log("Clearing functional locations data");
+    window.spaceInventory = [];  
+    window.spaceInventory.push(...event.data.payload);
+    console.log("✅ Space Inventory payload received:", event.data.payload);
   }
 
 });

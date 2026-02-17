@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/x-icon" href="https://cdn.autodesk.io/favicon.ico">
-    <link rel="stylesheet" href="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.css">
+    <link rel="stylesheet" href="https://developer.api.autodesk.com/modelderivative/v2/viewers/8.*/style.css">
     <link rel="stylesheet" href="https://unpkg.com/inspire-tree-dom@4.0.6/dist/inspire-tree-light.min.css">
     <link rel="stylesheet" href="./main.css">
     <script src="./functions.mjs"></script>
@@ -25,65 +25,67 @@
     <!-- ! sidebar -->
     <!-- #region: viewer -->
     <!----------------------------- VIEWER SIDEBAR ----------------------------->
-<div id="viewerSidebar" class="open">
-  <div id="viewerControls">
-    <div class="sidebar-item" id="3D-button-item">
-      <button class="control-btn" id="3D-button" title="3D">
-        <img src="images/3D-black.svg" alt="3D button" />
-        <span class="sidebar-labels">3D</span>
-      </button>
-    </div>
 
-    <div class="sidebar-item" id="fire-plans-item">
-      <button class="control-btn" id="fire-plans" title="Fire Plans">
-        <img src="images/fire-plan.svg" alt="Fire Plans" />
-        <span class="sidebar-labels">Fire Plans</span>
-      </button>
-    </div>
+    
+    <div id="viewerSidebar" class="open">
+      <div id="viewerControls">
+        <div class="sidebar-item" id="3D-button-item">
+          <button class="control-btn" id="3D-button" title="3D">
+            <img src="images/3D-black.svg" alt="3D button" />
+            <span class="sidebar-labels">3D</span>
+          </button>
+        </div>
 
-    <div class="sidebar-item" id="2D-sheets-item">
-      <button class="control-btn" id="2D-sheets" title="2D">
-        <img src="images/2D-black.svg" alt="Sheets & Views" />
-        <span class="sidebar-labels">2D</span>
-      </button>
-    </div>
+        <div class="sidebar-item" id="fire-plans-item">
+          <button class="control-btn" id="fire-plans" title="Fire Plans">
+            <img src="images/fire-plan.svg" alt="Fire Plans" />
+            <span class="sidebar-labels">Fire Plans</span>
+          </button>
+        </div>
 
-    <div class="sidebar-item" id="parking-item">
-      <button class="control-btn" id="parking" title="Parking">
-        <img src="images/parking.svg" alt="Parking" />
-        <span class="sidebar-labels">Parking</span>
-      </button>
-    </div>
+        <div class="sidebar-item" id="2D-sheets-item">
+          <button class="control-btn" id="2D-sheets" title="2D">
+            <img src="images/2D-black.svg" alt="Sheets & Views" />
+            <span class="sidebar-labels">2D</span>
+          </button>
+        </div>
 
-    <div class="sidebar-item" id="levels-item">
-      <button class="control-btn" id="levels" title="Levels">
-        <img src="images/levels.svg" alt="Levels Button" />
-        <span class="sidebar-labels">Levels</span>
-      </button>
-    </div>
+        <div class="sidebar-item" id="parking-item">
+          <button class="control-btn" id="parking" title="Parking">
+            <img src="images/parking.svg" alt="Parking" />
+            <span class="sidebar-labels">Parking</span>
+          </button>
+        </div>
 
-    <div class="sidebar-item" id="zones-button-item">
-      <button class="control-btn" id="zones-button" title="Zones">
-        <img src="images/zones.svg" alt="Zones" />
-        <span class="sidebar-labels">Zones</span>
-      </button>
-    </div>
+        <div class="sidebar-item" id="levels-item">
+          <button class="control-btn" id="levels" title="Levels">
+            <img src="images/levels.svg" alt="Levels Button" />
+            <span class="sidebar-labels">Levels</span>
+          </button>
+        </div>
 
-    <div class="sidebar-item" id="live-data-button-item">
-      <button class="control-btn" id="live-data" title="Live Data">
-        <img src="images/live-data-black.svg" alt="Live Data" />
-        <span class="sidebar-labels">Live Data</span>
-      </button>
-    </div>
+        <div class="sidebar-item" id="zones-button-item">
+          <button class="control-btn" id="zones-button" title="Zones">
+            <img src="images/zones.svg" alt="Zones" />
+            <span class="sidebar-labels">Zones</span>
+          </button>
+        </div>
 
-    <div class="sidebar-item" id="model-browser-button-item">
-      <button class="control-btn" id="model-browser" title="Model Browser">
-        <img src="images/model-browser.svg" alt="Model Browser" />
-        <span class="sidebar-labels">Browser</span>
-      </button>
+        <div class="sidebar-item" id="live-data-button-item">
+          <button class="control-btn" id="live-data" title="Live Data">
+            <img src="images/live-data-black.svg" alt="Live Data" />
+            <span class="sidebar-labels">Live Data</span>
+          </button>
+        </div>
+
+        <div class="sidebar-item" id="model-browser-button-item">
+          <button class="control-btn" id="model-browser" title="Model Browser">
+            <img src="images/model-browser.svg" alt="Model Browser" />
+            <span class="sidebar-labels">Browser</span>
+          </button>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
     <!----------------------------- VIEWER SIDEBAR ----------------------------->
     <!-- #endregion -->
@@ -92,7 +94,19 @@
     <div id="sidebar">
         <div id="tree"></div>
     </div>
-    <div id="preview"></div>
+
+    <!-- Flex layout (iframe + preview only) -->
+    <div id="layoutRow">
+      <iframe src="" title="Hemy X" id="iframeTest"></iframe>
+      <div id="preview"></div>
+    </div>
+
+<button id="closeIframeBtn" 
+    style="position:fixed; top:0.5em; left:0.5em; z-index:1500;
+    font-size:11px; padding:6px 12px; border-radius:4px;">
+    ✖ Close
+</button>
+
 
 
 
@@ -171,12 +185,13 @@
 
   <!----------------------------- FIRE PLAN PANEL ----------------------------->
   <div class="fire-plan" id="fire-plan-panel">
-    <h2>Fire Information & Plans</h2>
+      <button id="closeFirePlan" class="close-btn">✖</button>
 
-    <div class="list-container">
-      <ul class="fire-plan-list">
-      </ul>
-    </div>
+      <h2>Fire Information & Plans</h2>
+
+      <div class="list-container">
+        <ul class="fire-plan-list"></ul>
+      </div>
   </div>
 
 
@@ -184,6 +199,8 @@
 
   <!----------------------------- 2D SHEETS PANEL ----------------------------->
   <div class="sheets-2d" id="sheets-2d-panel">
+    <button id="closeSheets2D" class="close-btn">✖</button>
+
     <h2>2D Sheets</h2>
 
     <div class="list-container">

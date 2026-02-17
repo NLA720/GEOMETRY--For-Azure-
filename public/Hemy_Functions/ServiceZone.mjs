@@ -128,6 +128,82 @@ function performSearchAndIsolate(viewer, models, serviceTaskList) {
     .catch((error) => console.error("Error during promise chain:", error));
 }
 
+
+
+
+export async function spaceInventorySearch(viewer, zoneData) {
+  viewer.clearSelection();
+
+  console.log("Parsed zone data:", zoneData);
+
+  if (!Array.isArray(zoneData) || zoneData.length === 0) return;
+
+  const models = viewer.impl.modelQueue().getModels();
+
+  models.forEach(model => viewer.clearThemingColors(model));
+  if (!models?.length || !Array.isArray(zoneData) || zoneData.length === 0) return;
+
+  // Colors
+  const red = new THREE.Vector4(1, 0, 0, 1);
+  const green = new THREE.Vector4(0, 1, 0, 1);
+  const redSel = new THREE.Color(1, 0, 0);
+  const greenSel = new THREE.Color(0, 1, 0);
+
+  // ✅ Group by occupancy
+  const occupancyGroups = [...new Set(zoneData.map(z => z.occupancy))].map(o => ({
+    occupancy: o,
+    locations: zoneData
+      .filter(z => z.occupancy === o)
+      .map(z => z.flId) // or z.FunctionalLocation if that’s the correct field
+  }));
+
+  const model2 = models[1];
+  if (!model2) {
+    console.warn("Second model not found!");
+    return;
+  }
+
+  for (const { occupancy, locations } of occupancyGroups) {
+
+    const isGreen = occupancy === 100000001;
+
+    const themeColor = isGreen ? green : red;
+    const selectionColor = isGreen ? greenSel : redSel;
+
+    let allDbIds = [];
+
+    const searches = locations.map(loc => {
+      return new Promise(resolve => {
+        // console.log("Searching for location:", loc);
+        model2.search(
+          loc,
+          dbIDs => {
+            if (dbIDs?.length) {
+              allDbIds.push(...dbIDs);
+
+              dbIDs.forEach(id =>
+                viewer.setThemingColor(id, themeColor, model2)
+              );
+
+              viewer.select(dbIDs, model2);
+              viewer.setSelectionColor(selectionColor);
+            }
+            resolve();
+          },
+          err => {
+            console.warn("Search error:", err);
+            resolve();
+          }
+        );
+      });
+    });
+
+    await Promise.all(searches);
+
+    viewer.select(allDbIds, model2);
+  }
+}
+
 // import {
 //   showServiceTasksDockingPanel,
 //   createToolbarButton,

@@ -48,6 +48,96 @@ export function isTokenExpired() {
   return !expires_at || Date.now() >= parseInt(expires_at, 10);
 }
 
+
+// import { initViewer, loadModel } from "./viewer.mjs";
+// import { initTree } from "./sidebar.mjs";
+
+// document.addEventListener("DOMContentLoaded", async () => {
+//   try {
+//     // Start all tasks in parallel
+//     const tokenPromise = (!localStorage.getItem("authToken") || isTokenExpired())
+//       ? fetchAccessToken()
+//       : Promise.resolve(localStorage.getItem("authToken"));
+
+//     const modelPromise = loadModel(); // Start loading the model immediately
+
+//     const websocketPromise = setupWebSocket(); // Start WebSocket setup immediately
+
+//     // Wait for all to finish
+//     const [authToken, model, socket] = await Promise.all([
+//       tokenPromise,
+//       modelPromise,
+//       websocketPromise
+//     ]);
+
+//     console.log("✅ Token, model, and WebSocket are ready!");
+//     initializeApp(authToken, model, socket);
+//   } catch (error) {
+//     console.error("Error during initialization:", error);
+//   }
+// });
+
+// // Fetch token
+// export async function fetchAccessToken() {
+//   const response = await fetch("/api/auth/token");
+//   if (!response.ok) throw new Error("Failed to get access token");
+//   const data = await response.json();
+//   localStorage.setItem("authToken", data.access_token);
+//   localStorage.setItem("refreshToken", data.refresh_token);
+//   localStorage.setItem("expires_at", Date.now() + data.expires_in * 1000);
+//   localStorage.setItem("internal_token", data.internal_token);
+//   return data.access_token;
+// }
+
+// // Check token expiry
+// export function isTokenExpired() {
+//   const expires_at = localStorage.getItem("expires_at");
+//   return !expires_at || Date.now() >= parseInt(expires_at, 10);
+// }
+
+// // WebSocket setup
+// async function setupWebSocket() {
+//   const userGuid = new URLSearchParams(window.location.search).get("userGuid");
+//   if (!userGuid) return null;
+
+//   return new Promise((resolve, reject) => {
+//     const socket = new WebSocket(`wss://hemydigitaltwin-dra9gjbxbsaydxdz.northeurope-01.azurewebsites.net/ws/${userGuid}`);
+//     socket.addEventListener("open", () => {
+//       console.log("🔌 WebSocket connected");
+//       socket.send(JSON.stringify({ type: "ping" }));
+//       resolve(socket);
+//     });
+//     socket.addEventListener("error", reject);
+//   });
+// }
+
+// // Initialize app after everything is ready
+// function initializeApp(authToken, model, socket) {
+//   initViewer(model);
+//   initTree();
+//   console.log("App initialized with token:", authToken);
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 async function initApp() {
   try {
     let authToken = localStorage.getItem("authToken");
@@ -111,7 +201,14 @@ async function initApp() {
       let sessionId = params["sessionId"]; // The session id, if it exists
       let userType = params["user"]; // The user, if it exists
       const userGuid = params["userGuid"];
+      let sidebar = params["sidebar"]; // The sidebar, if it exists
       window.userGuid = userGuid; // Store userGuid in the global window object
+
+      if (sidebar === "off") {
+        document.getElementById("viewerSidebar").style.display = "none";
+        document.getElementById("layoutRow").style.right = "0px";
+        document.getElementById("toggleSidebar").style.display = "none";
+      }
       
       if (userGuid) {
             // ✅ Create WebSocket
@@ -268,7 +365,7 @@ async function initApp() {
 
         // ODV18
         "c2233237-dc9f-ef11-8a6a-00224899e340": [
-          "urn:adsk.wipemea:dm.lineage:Af_CxVQ8R9Gk7aIC2c69Rw", //ARCHI ?????
+          "urn:adsk.wipemea:dm.lineage:Af_CxVQ8R9Gk7aIC2c69Rw", //ARCHI 
           "urn:adsk.wipemea:dm.lineage:QlwJKiUVTzORuyDvPuGl1Q", //MEP
           //urn:adsk.wipemea:dm.lineage:58bBVbtMRzG4z7e3fzLsGA //deleted file
         ],
@@ -292,7 +389,7 @@ async function initApp() {
         ],
         // BS17
         "fc7d5d21-3506-f011-bae3-000d3ab487b3": [
-          "urn:adsk.wipemea:dm.lineage:WNYKT1wuRgGtn_HVS_4HwQ", //IFC???
+          "urn:adsk.wipemea:dm.lineage:WNYKT1wuRgGtn_HVS_4HwQ", //IFC??? 240318 IFC
         ],
 
         //T135
@@ -355,7 +452,7 @@ async function initApp() {
 
         // ODV18
         "Ole Deviks Vei 18 AS": [
-          "urn:adsk.wipemea:dm.lineage:58bBVbtMRzG4z7e3fzLsGA", //MEP
+          "urn:adsk.wipemea:dm.lineage:QlwJKiUVTzORuyDvPuGl1Q", //MEP
           "urn:adsk.wipemea:dm.lineage:Af_CxVQ8R9Gk7aIC2c69Rw", //ARCHI
         ],
 
@@ -367,7 +464,9 @@ async function initApp() {
         ],
 
         // FV50
-        "Fornebuveien 50": [
+        // "Fornebuveien 50" <- removed/changed?
+        // "Fornebuveien 50 (Joint Cost c/o Semy AS)" <- changed again
+        "Fornebuveien 50 (under Semy Felleskost AS)": [
           "urn:adsk.wipemea:dm.lineage:ys5aGM_9S8S7mQQVGsSk1Q", //MEP
           "urn:adsk.wipemea:dm.lineage:HT_kw5D_SEyxCe84jqaASQ", //ARCHI
         ],
@@ -511,7 +610,9 @@ async function initApp() {
         "Nanna AS": "b.bca6a4c5-fbd8-4dcb-a637-b3713a06cc8d",
         "Ole Deviks Vei 18 AS": "b.6623a4ce-ac71-4678-af1c-55a4030ff9d9",
         "Billingstadsletta 19 AS": "b.1c8224f1-b860-4a2b-821b-d393c94b190d",
-        "Fornebuveien 50": "b.ad45ddb0-25b9-451d-9c3a-61c7a6e0232f",
+        // "Fornebuveien 50": "b.ad45ddb0-25b9-451d-9c3a-61c7a6e0232f", // removed/changed?
+        // "Fornebuveien 50 (Joint Cost c/o Semy AS)": "b.ad45ddb0-25b9-451d-9c3a-61c7a6e0232f", // changed again
+        "Fornebuveien 50 (under Semy Felleskost AS)": "b.ad45ddb0-25b9-451d-9c3a-61c7a6e0232f",
         "Billingstadsletta 17 AS": "b.09751ad8-ce14-4f21-99c2-440312cd216f",
         "Trondheimsveien 135 AS": "b.39d3702e-4095-44d4-8c29-becf571a90aa",
       };

@@ -51,7 +51,11 @@
 // // Start the server
 // app.listen(PORT, () => console.log(`Server listening on port ${PORT}...`));
 
+
 const express = require('express');
+
+
+
 const session = require('cookie-session');
 const path = require('path');
 const http = require('http');
@@ -59,6 +63,10 @@ const WebSocket = require('ws');
 const { PORT, SERVER_SESSION_SECRET } = require('./config.js');
 
 const app = express();
+
+app.use(express.json());
+
+
 const server = http.createServer(app);
 
 // 📒 Store all WebSocket clients by user ID
@@ -142,4 +150,27 @@ server.on('upgrade', (request, socket, head) => {
 server.listen(PORT, () => {
   console.log(`🚀 HTTP + WebSocket server running on port ${PORT}...`);
 });
+
+
+// app.use(express.json());
+
+// app.listen(8080, () => {
+//   console.log("Server running on http://localhost:8080");
+// });
+
+
+// app.post('/export-pdf', async (req, res) => {
+//    console.log("🔥 /export-pdf route hit");
+// });
+
+
+// app.post('/export-pdf', (req, res) => {
+//   console.log("Route works!");
+//   res.send("Export route reached");
+// });
+// app.post('/export-pdf', async (req, res) => {
+//   const { urn, viewableID } = req.body; // <- this must exist
+//   if (!urn || !viewableID) return res.status(400).send("Missing urn or viewableID");
+// });
+
 

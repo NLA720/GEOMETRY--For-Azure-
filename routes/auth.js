@@ -1,3 +1,4 @@
+
 const express = require('express');
 const Axios = require('axios');
 const cors = require('cors'); // Import CORS
@@ -563,5 +564,373 @@ router.get("/api/acc/getElementsByCategory", async (req, res) => {
 
 
 
+
+
+// router.post('/export-pdf', async (req, res) => {
+//   const { urn, viewableID, sheetName } = req.body;
+
+//   if (!urn || !viewableID) return res.status(400).send('Missing urn or viewableID');
+
+//   try {
+    
+//     const authToken = req.headers.authorization?.split(' ')[1]; // Extract token from headers
+//      console.log(authToken)
+//     const jobResp = await fetch(`https://developer.api.autodesk.com/modelderivative/v2/designdata/job`, {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//         'Authorization': `Bearer ${authToken}`
+//       },
+//       body: JSON.stringify({
+//         input: { urn },
+//         output: {
+//           formats: [{ type: 'pdf', views: ['2d'], advanced: { sheetIds: [viewableID] } }]
+//         }
+//       })
+//     });
+
+//     if (!jobResp.ok) {
+//       const text = await jobResp.text();
+//       console.error('Job submission failed:', text);
+//       return res.status(500).send('Failed to start PDF job');
+//     }
+
+//     const jobData = await jobResp.json();
+//     res.json({ status: 'submitted', jobData });
+
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).send('Failed to export PDF');
+//   }
+// });
+
+
+// module.exports = router;
+
+// const express = require("express");
+// const fetch = require("node-fetch"); // make sure node-fetch v2 installed
+// const router = express.Router();
+
+// const express = require("express");
+// const fetch = require("node-fetch"); // if using node 18+, can use global fetch
+// const router = express.Router();
+
+
+///here
+
+// router.post("/export-pdf", async (req, res) => {
+//   const { containerId, versionId, sheetName } = req.body;
+
+//   if (!containerId || !versionId) {
+//     return res.status(400).send("Missing containerId or versionId");
+//   }
+
+//   try {
+//     // ACC requires a 3-legged access token with data:read
+//     const accessToken = req.headers.authorization?.split(" ")[1];
+//     if (!accessToken) return res.status(401).send("Missing Authorization token");
+
+//     // Trigger the PDF extraction job
+//     const pdfJobResp = await fetch(
+//       `https://developer.api.autodesk.com/acc/v1/containers/${containerId}/versions/${versionId}/relationships/derivatives`,
+//       {
+//         method: "POST",
+//         headers: {
+//           "Authorization": `Bearer ${accessToken}`,
+//           "Content-Type": "application/vnd.api+json"
+//         },
+//         body: JSON.stringify({
+//           jsonapi: { version: "1.0" },
+//           data: {
+//             type: "derivatives",
+//             attributes: {
+//               outputType: "pdf",
+//               sheetIds: req.body.sheetIds ? req.body.sheetIds : []
+//             }
+//           }
+//         })
+//       }
+//     );
+
+//     if (!pdfJobResp.ok) {
+//       const text = await pdfJobResp.text();
+//       console.error("PDF job failed:", text);
+//       return res.status(500).send("Failed to start PDF job");
+//     }
+
+//     const jobData = await pdfJobResp.json();
+
+//     // Polling the job until it's ready
+//     const derivativeId = jobData.data.id; // job derivative ID
+//     let pdfReady = false;
+//     let downloadUrl;
+
+//     while (!pdfReady) {
+//       await new Promise(r => setTimeout(r, 3000));
+
+//       const statusResp = await fetch(
+//         `https://developer.api.autodesk.com/acc/v1/containers/${containerId}/versions/${versionId}/relationships/derivatives/${derivativeId}`,
+//         { headers: { Authorization: `Bearer ${accessToken}` } }
+//       );
+
+//       const statusData = await statusResp.json();
+
+//       if (statusData.data.attributes.status === "success") {
+//         pdfReady = true;
+//         downloadUrl = statusData.data.attributes.downloadUrl;
+//       } else if (statusData.data.attributes.status === "failed") {
+//         return res.status(500).send("PDF generation failed");
+//       }
+//     }
+
+//     // Fetch the PDF and pipe it to the client
+//     const pdfResp = await fetch(downloadUrl);
+//     const pdfBuffer = await pdfResp.arrayBuffer();
+
+//     res.setHeader("Content-Type", "application/pdf");
+//     res.setHeader(
+//       "Content-Disposition",
+//       `attachment; filename="${sheetName || "sheet"}.pdf"`
+//     );
+//     res.send(Buffer.from(pdfBuffer));
+
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).send("Error exporting PDF");
+//   }
+// });
+
+
+
+// module.exports = router;
+
+
+
+
+// router.post("/export-pdf", async (req, res) => {
+//   const { urn, viewableID, sheetName } = req.body;
+
+//   if (!urn || !viewableID)
+//     return res.status(400).send("Missing urn or viewableID");
+
+//   try {
+    
+
+//     // 1️⃣ Start PDF translation job
+//     const jobResp = await fetch(
+//       "https://developer.api.autodesk.com/modelderivative/v2/designdata/job",
+//       {
+//         method: "POST",
+//         headers: {
+//             "Authorization": `Bearer ${accessToken}`,
+//           "Content-Type": "application/vnd.api+json"
+//         },
+//         body: JSON.stringify({
+//           input: { urn },
+//           output: {
+//             formats: [{
+//               type: "pdf",
+//               views: ["2d"],
+//               advanced: {
+//                 sheetIds: [viewableID]
+//               }
+//             }]
+//           }
+//         })
+//       }
+//     );
+
+//     if (!jobResp.ok) {
+//   const err = await jobResp.text();
+//   console.error("AUTODESK ERROR:", err);
+//   return res.status(500).send(err);
+// }
+
+
+//     // 2️⃣ Poll until ready
+//     let pdfUrn;
+//     while (!pdfUrn) {
+//       await new Promise(r => setTimeout(r, 3000));
+
+//       const manifestResp = await fetch(
+//         `https://developer.api.autodesk.com/modelderivative/v2/designdata/${urn}/manifest`,
+//         { headers: { Authorization: `Bearer ${accessToken}` } }
+//       );
+
+//       const manifest = await manifestResp.json();
+
+//       const pdfDerivative = manifest.derivatives?.find(d => d.outputType === "pdf");
+
+//       if (pdfDerivative?.children?.length) {
+//         pdfUrn = pdfDerivative.children[0].urn;
+//       }
+//     }
+
+//     // 3️⃣ Download the PDF
+//     const pdfResp = await fetch(
+//       `https://developer.api.autodesk.com/derivativeservice/v2/derivatives/${pdfUrn}`,
+//       { headers: { Authorization: `Bearer ${token}` } }
+//     );
+
+//     const buffer = await pdfResp.buffer();
+
+//     res.setHeader("Content-Type", "application/pdf");
+//     res.setHeader(
+//       "Content-Disposition",
+//       `attachment; filename="${sheetName || "sheet"}.pdf"`
+//     );
+//     res.send(buffer);
+
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).send("Export failed");
+//   }
+// });
+
+// module.exports = router;
+
+
+// Get 2-legged token
+// async function getAccessToken() {
+//   const resp = await fetch(
+//     "https://developer.api.autodesk.com/authentication/v1/authenticate",
+//     {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/x-www-form-urlencoded"
+//       },
+//       body: new URLSearchParams({
+//         client_id: process.env.FORGE_CLIENT_ID,
+//         client_secret: process.env.FORGE_CLIENT_SECRET,
+//         grant_type: "client_credentials",
+//         scope: "data:read data:write bucket:read"
+//       })
+//     }
+//   );
+
+//   const data = await resp.json();
+//   return data.access_token;
+// }
+
+
+// Get 2-legged token
+
+//   const resp = await fetch(
+//     "https://developer.api.autodesk.com/authentication/v1/authenticate",
+//     {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/x-www-form-urlencoded"
+//       },
+//       body: new URLSearchParams({
+//         client_id: process.env.FORGE_CLIENT_ID,
+//         client_secret: process.env.FORGE_CLIENT_SECRET,
+//         grant_type: "client_credentials",
+//         scope: "data:read data:write bucket:read"
+//       })
+//     }
+//   );
+
+//   const data = await resp.json();
+//   return data.access_token;
+
+const app = express();
+
+// Add this **before your routes**
+app.use(express.json());
+
+router.post("/export-pdf", async (req, res) => {
+  const { urn, viewableID, sheetName } = req.body;
+
+  if (!urn || !viewableID)
+    return res.status(400).send("Missing urn or viewableID");
+
+  const accessToken = req.headers.authorization?.split(" ")[1];
+  if (!accessToken) return res.status(401).send("Missing access token");
+
+  try {
+    // 1️⃣ Start PDF translation job
+    const jobResp = await fetch(
+      "https://developer.api.autodesk.com/modelderivative/v2/designdata/job",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          input: { urn },
+          output: {
+            formats: [
+              {
+                type: "pdf",
+                views: ["2d"],
+                advanced: { sheetIds: [viewableID] } // Use the correct viewableID here!
+              }
+            ]
+          }
+        })
+      }
+    );
+
+    if (!jobResp.ok) {
+      const err = await jobResp.text();
+      console.error("AUTODESK ERROR:", err);
+      return res.status(500).send(err);
+    }
+
+    const jobData = await jobResp.json();
+    console.log("PDF job submitted:", jobData);
+
+    // 2️⃣ Poll for PDF availability (with timeout)
+    let pdfUrn = null;
+    const start = Date.now();
+
+    while (!pdfUrn) {
+      if (Date.now() - start > 60000) { // timeout 60s
+        return res.status(500).send("PDF translation timed out");
+      }
+
+      await new Promise(r => setTimeout(r, 3000));
+
+      const manifestResp = await fetch(
+        `https://developer.api.autodesk.com/modelderivative/v2/designdata/${urn}/manifest`,
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      );
+
+      const manifest = await manifestResp.json();
+
+      if (manifest.status === "failed") {
+        return res.status(500).send("PDF translation failed");
+      }
+
+      const pdfDerivative = manifest.derivatives?.find(d => d.outputType === "pdf");
+
+      if (pdfDerivative?.children?.length) {
+        pdfUrn = pdfDerivative.children[0].urn;
+      }
+    }
+
+    // 3️⃣ Download PDF
+    const pdfResp = await fetch(
+      `https://developer.api.autodesk.com/derivativeservice/v2/derivatives/${pdfUrn}`,
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    );
+
+    const buffer = await pdfResp.buffer();
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${sheetName || "sheet"}.pdf"`
+    );
+
+    res.send(buffer);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Export failed");
+  }
+});
 
 module.exports = router;
